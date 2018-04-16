@@ -52,7 +52,6 @@ function buyItem() {
             connection.end();
         }); //query
     });
-
 } //function buyItem
 /////////////////////////////
 connection.connect(function (err) {
