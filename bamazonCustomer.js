@@ -1,3 +1,5 @@
+
+require("dotenv").config();
 var mysql = require("mysql");
 var inquirer = require("inquirer");
 
@@ -9,7 +11,7 @@ var connection = mysql.createConnection({
     user: "root",
 
     // Your password
-    password: "Pcheny02",
+    password: process.env.MYSQLPASSWORD,
     database: "bamazon"
 });
 
@@ -26,14 +28,15 @@ function allProduct() {
 function buyItem() {
     inquirer.prompt([{
             name: "buyId",
-            message: "\nEnter the Id of the Item you would like to purchase"
+            message: "Enter the Id of the Item you would like to purchase "
         },
         {
             name: "amount",
-            message: "\nHow many?"
+            message: "How many? "
         }
     ]).then(function (userIn) {
         var query = connection.query("SELECT * FROM products WHERE item_id=?", userIn.buyId, function (err, res) {
+
             if (userIn.amount > res[0].stock_quantity) {
                 console.log("Insufficient quantity!");
             } else {
@@ -44,12 +47,16 @@ function buyItem() {
                         item_id: userIn.buyId
                     }
                 ]);
+                console.log("\nThe total cost is $" + (userIn.amount * res[0].price).toFixed(2));        
             }
+            connection.end();
         }); //query
-    }); //then
+    });
+
 } //function buyItem
 /////////////////////////////
-
-allProduct();
-
-connection.end();
+connection.connect(function (err) {
+    if (err) throw err;
+    console.log("connected as id " + connection.threadId);
+    allProduct();
+});
