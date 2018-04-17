@@ -20,6 +20,8 @@ function allProduct() {
         for (var i = 0; i < res.length; i++) {
             console.log("\n" + "+".repeat(50) + "\n" + res[i].product_name + "\nItem Id: " + res[i].item_id + "\nDepartment: " + res[i].department_name + "\nPrice: " + "$" + res[i].price + "\nQuantity: " + res[i].stock_quantity);
         }
+        console.log("\n");
+        mainMenu();
     }); //query
 } //end allProduct
 
@@ -29,9 +31,11 @@ function lowProduct() {
         for (var i = 0; i < res.length; i++) {
             console.log("\n" + "+".repeat(50) + "\n" + res[i].product_name + "\nItem Id: " + res[i].item_id + "\nDepartment: " + res[i].department_name + "\nPrice: " + "$" + res[i].price + "\nQuantity: " + res[i].stock_quantity);
         }
+        console.log("\n");
+        mainMenu();
     }); //query
+    
 } //end lowProduct
-
 
 function addInventory() {
     console.log("\033c");
@@ -48,7 +52,7 @@ function addInventory() {
     ]).then(function (userIn) {
         var query = connection.query("SELECT * FROM products WHERE item_id=?", userIn.id, function (err, res) {
             if (res[0] == undefined) {
-                console.log("Item id not found");
+                console.log("\n" + userIn.id + "  Item id not found\n");
             } else {
                 var sum = parseInt(res[0].stock_quantity) + parseInt(userIn.quantity);
                 var query = connection.query("UPDATE products SET ? WHERE ?", [{
@@ -58,8 +62,11 @@ function addInventory() {
                         item_id: userIn.id
                     }
                 ]);
-                console.log("Item " + userIn.id + " quantity updated " + sum);
+                console.log("\nItem " + userIn.id + "  " + res[0].product_name +
+                    " quantity updated from " +
+                    res[0].stock_quantity + " to " + sum + "\n");
             }
+            mainMenu();
         }); //query
     }); //.then
 } // function addInventory
@@ -110,11 +117,6 @@ function addProduct() {
     }); //.then
 } //function addProduct
 
-function exitProgram() {
-    //console.log("\033c");
-    console.log("\ngood bye")
-    connection.end();
-}
 
 function mainMenu() {
     inquirer.prompt([{
