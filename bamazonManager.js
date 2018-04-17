@@ -32,8 +32,12 @@ function allProduct() {
 function lowProduct() {
     console.log("\033c");
     connection.query("SELECT * FROM products WHERE stock_quantity < 5 ORDER BY stock_quantity ASC", function (err, res) {
-        for (var i = 0; i < res.length; i++) {
-            console.log("\n" + "+".repeat(50) + "\n" + res[i].product_name + "\nItem Id: " + res[i].item_id + "\nDepartment: " + res[i].department_name + "\nPrice: " + "$" + res[i].price + "\nQuantity: " + res[i].stock_quantity);
+        if (!res.length) {
+            console.log("\nAll items are stocked at a quantity of 5 or more.\n");
+        } else {
+            for (var i = 0; i < res.length; i++) {
+                console.log("\n" + "+".repeat(50) + "\n" + res[i].product_name + "\nItem Id: " + res[i].item_id + "\nDepartment: " + res[i].department_name + "\nPrice: " + "$" + res[i].price + "\nQuantity: " + res[i].stock_quantity);
+            }
         }
         console.log("\n");
         mainMenu();
@@ -50,7 +54,7 @@ function addInventory() {
                 if (answer.match(/^[1-9]\d*$/)) {
                     return true;
                 } else {
-                   return "Please enter a positive integer.";
+                    return "Please enter a positive integer.";
                 }
             }
         },
@@ -62,13 +66,13 @@ function addInventory() {
                 if (answer.match(/^[1-9]\d*$/)) {
                     return true;
                 } else {
-                   return "Please enter a positive integer.";
+                    return "Please enter a positive integer.";
                 }
             }
         }
     ]).then(function (userIn) {
         var query = connection.query("SELECT * FROM products WHERE item_id=?", userIn.id, function (err, res) {
-            if (res[0] == undefined) {
+            if (!res.length) {
                 console.log("\n" + userIn.id + "  Item id not found\n");
             } else {
                 var sum = parseInt(res[0].stock_quantity) + parseInt(userIn.quantity);
@@ -98,7 +102,7 @@ function addProduct() {
                 if (answer.match(/^[1-9]\d*$/)) {
                     return true;
                 } else {
-                   return "Please enter a positive integer.";
+                    return "Please enter a positive integer.";
                 }
             }
         },
@@ -120,7 +124,7 @@ function addProduct() {
                 if (answer.match(/^[+-]?[1-9][0-9]{0,2}(?:(,[0-9]{3})*|([0-9]{3})*)(?:\.[0-9]{2})?$/)) {
                     return true;
                 } else {
-                   return "Please enter a price.";
+                    return "Please enter a price.";
                 }
             }
         },
@@ -132,7 +136,7 @@ function addProduct() {
                 if (answer.match(/^[1-9]\d*$/)) {
                     return true;
                 } else {
-                   return "Please enter a positive integer.";
+                    return "Please enter a positive integer.";
                 }
             }
         }
