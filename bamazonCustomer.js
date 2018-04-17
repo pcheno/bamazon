@@ -1,4 +1,3 @@
-
 require("dotenv").config();
 var mysql = require("mysql");
 var inquirer = require("inquirer");
@@ -28,32 +27,54 @@ function allProduct() {
 function buyItem() {
     inquirer.prompt([{
             name: "buyId",
-            message: "Enter the Id of the Item you would like to purchase "
+            message: "Enter the Id of the Item you would like to purchase ",
+            validate: answer => {
+                if (answer.match(/^[1-9]\d*$/)) {
+                    return true;
+                } else {
+                    return "Please enter a positive integer.";
+                }
+            }
         },
         {
             name: "amount",
-            message: "How many? "
+            type: "input",
+            message: "How many? ",
+            validate: answer => {
+                if (answer.match(/^[1-9]\d*$/)) {
+                    return true;
+                } else {
+                    return "Please enter a positive integer.";
+                }
+            }
         }
     ]).then(function (userIn) {
         var query = connection.query("SELECT * FROM products WHERE item_id=?", userIn.buyId, function (err, res) {
-
-            if (userIn.amount > res[0].stock_quantity) {
-                console.log("Insufficient quantity!");
+            if (res[0] == undefined) {
+                console.log("\n" + userIn.buyId + "  Item id not found\n");
             } else {
-                var query = connection.query("UPDATE products SET ? WHERE ?", [{
-                        stock_quantity: res[0].stock_quantity - userIn.amount
-                    },
-                    {
-                        item_id: userIn.buyId
-                    }
-                ]);
-                console.log("\nThe total cost is $" + (userIn.amount * res[0].price).toFixed(2));        
+                if (userIn.amount > res[0].stock_quantity) {
+                    console.log("Insufficient quantity!");
+                } else {
+                    var query = connection.query("UPDATE products SET ? WHERE ?", [{
+                            stock_quantity: res[0].stock_quantity - userIn.amount
+                        },
+                        {
+                            item_id: userIn.buyId
+                        }
+                        
+                    ]);
+                    console.log("\nThe total cost is $" + (userIn.amount * res[0].price).toFixed(2)+
+                                "\n" + res[0].product_name + " past quantity " + res[0].stock_quantity+
+                                 ", now has a quantity of " + (res[0].stock_quantity - userIn.amount));
+                }
             }
             connection.end();
         }); //query
-    });
+    }); //.then
 } //function buyItem
-/////////////////////////////
+
+//////////////start here///////////////
 connection.connect(function (err) {
     if (err) throw err;
     console.log("connected as id " + connection.threadId);

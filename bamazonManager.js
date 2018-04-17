@@ -2,6 +2,8 @@ require("dotenv").config();
 var mysql = require("mysql");
 var inquirer = require("inquirer");
 
+
+
 var connection = mysql.createConnection({
     host: "localhost",
     port: 3306,
@@ -13,6 +15,8 @@ var connection = mysql.createConnection({
     password: process.env.MYSQLPASSWORD,
     database: "bamazon"
 });
+
+
 
 function allProduct() {
     console.log("\033c");
@@ -34,7 +38,6 @@ function lowProduct() {
         console.log("\n");
         mainMenu();
     }); //query
-    
 } //end lowProduct
 
 function addInventory() {
@@ -42,12 +45,26 @@ function addInventory() {
     inquirer.prompt([{
             name: "id",
             type: "input",
-            message: "Enter the Id of the Item you would like to add inventory: "
+            message: "Enter the Id of the Item you would like to add inventory: ",
+            validate: answer => {
+                if (answer.match(/^[1-9]\d*$/)) {
+                    return true;
+                } else {
+                   return "Please enter a positive integer.";
+                }
+            }
         },
         {
             name: "quantity",
             type: "input",
-            message: "How many to add to stock quantity: "
+            message: "How many to add to stock quantity: ",
+            validate: answer => {
+                if (answer.match(/^[1-9]\d*$/)) {
+                    return true;
+                } else {
+                   return "Please enter a positive integer.";
+                }
+            }
         }
     ]).then(function (userIn) {
         var query = connection.query("SELECT * FROM products WHERE item_id=?", userIn.id, function (err, res) {
@@ -76,7 +93,14 @@ function addProduct() {
     inquirer.prompt([{
             name: "addId",
             type: "input",
-            message: "Enter the Id of the Item you would like to add: "
+            message: "Enter the Id of the Item you would like to add: ",
+            validate: answer => {
+                if (answer.match(/^[1-9]\d*$/)) {
+                    return true;
+                } else {
+                   return "Please enter a positive integer.";
+                }
+            }
         },
         {
             name: "prod_name",
@@ -91,12 +115,26 @@ function addProduct() {
         {
             name: "price",
             type: "input",
-            message: "Enter price: $"
+            message: "Enter price: $",
+            validate: answer => {
+                if (answer.match(/^[+-]?[1-9][0-9]{0,2}(?:(,[0-9]{3})*|([0-9]{3})*)(?:\.[0-9]{2})?$/)) {
+                    return true;
+                } else {
+                   return "Please enter a price.";
+                }
+            }
         },
         {
             name: "quantity",
             type: "input",
-            message: "quantity: "
+            message: "quantity: ",
+            validate: answer => {
+                if (answer.match(/^[1-9]\d*$/)) {
+                    return true;
+                } else {
+                   return "Please enter a positive integer.";
+                }
+            }
         }
     ]).then(function (input) {
 
