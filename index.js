@@ -37,7 +37,6 @@ function bamazonMenu() {
             case "Exit menu":
                 console.log("\033c");
                 console.log("\ngood bye")
-                //return;
                 break;
         }
     });

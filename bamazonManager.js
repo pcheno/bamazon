@@ -143,21 +143,32 @@ function bamazonManager() {
                 }
             }
         ]).then(function (input) {
+            connection.query(
+                "SELECT * FROM departments WHERE department_name=?", input.dept,
+                function (err, res) {
+                    // is dept on file?
+                    if (!res.length) {
+                        console.log("\nDepartment not on file");
+                        mainMenu();
+                        return
+                    } else {
+                        var query = connection.query("INSERT INTO products SET ?", {
+                            item_id: input.addId,
+                            product_name: input.prod_name,
+                            department_name: input.dept,
+                            price: input.price,
+                            stock_quantity: input.quantity
+                        }, function (err, res) {
+                            if (err) {
+                                console.log("\nUnable to add, Id not valid, Remember no duplicates\n");
+                            } else {
+                                console.log("\nItem added\n")
+                            }
+                            mainMenu();
 
-            var query = connection.query("INSERT INTO products SET ?", {
-                item_id: input.addId,
-                product_name: input.prod_name,
-                department_name: input.dept,
-                price: input.price,
-                stock_quantity: input.quantity
-            }, function (err, res) {
-                if (err) {
-                    console.log("\nUnable to add, Id not valid, Remember no duplicates\n");
-                } else {
-                    console.log("\nItem added\n")
-                }
-                mainMenu();
-            }); //query
+                        }); //query
+                    } //else
+                });
         }); //.then
     } //function addProduct
 
