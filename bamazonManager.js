@@ -148,7 +148,7 @@ function bamazonManager() {
                 function (err, res) {
                     // is dept on file?
                     if (!res.length) {
-                        console.log("\nDepartment not on file");
+                        console.log("\n" + input.dept + "  Department not on file\n");
                         mainMenu();
                         return
                     } else {
@@ -165,10 +165,10 @@ function bamazonManager() {
                                 console.log("\nItem added\n")
                             }
                             mainMenu();
-
                         }); //query
                     } //else
                 });
+                
         }); //.then
     } //function addProduct
 
