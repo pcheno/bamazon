@@ -59,15 +59,17 @@ function bamazonCustomer() {
                     if (userIn.amount > res[0].stock_quantity) {
                         console.log("\nInsufficient quantity! Only " + res[0].stock_quantity + " available.\n");
                     } else {
+                        var salesTot = userIn.amount * res[0].price.toFixed(2);
                         var query = connection.query("UPDATE products SET ? WHERE ?", [{
-                                stock_quantity: res[0].stock_quantity - userIn.amount
+                                stock_quantity: res[0].stock_quantity - userIn.amount,
+                                product_sales: (res[0].product_sales) + parseFloat(salesTot)
                             },
                             {
                                 item_id: userIn.buyId
                             }
 
                         ]);
-                        console.log("\nThe total cost is $" + (userIn.amount * res[0].price).toFixed(2) +
+                        console.log("\nThe total cost is $" + salesTot +
                             "\n" + res[0].product_name + " past quantity " + res[0].stock_quantity +
                             ", now has a quantity of " + (res[0].stock_quantity - userIn.amount));
                     }

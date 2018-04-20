@@ -41,3 +41,22 @@ VALUES (90909, "newsweek", "periodical", 1.00, 40);
 
 INSERT INTO products (item_id, product_name, department_name, price, stock_quantity)
 VALUES (11111, "time", "periodical", 1.75, 37);
+
+ALTER TABLE products
+  ADD COLUMN product_sales DECIMAL(10,2) NULL;
+  
+USE bamazon;
+
+CREATE TABLE departments (
+  department_id INT NOT NULL AUTO_INCREMENT,
+  department_name VARCHAR(45),
+  over_head_costs DECIMAL(10,2) NULL,
+  PRIMARY KEY (department_id)
+);
+
+INSERT INTO departments (department_name, over_head_costs)
+VALUES 
+	("periodical", 1000),
+  ("clothing", 2000),
+  ("electronics",5000),
+  ("food", 500);
