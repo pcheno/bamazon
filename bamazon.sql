@@ -60,3 +60,5 @@ VALUES
   ("clothing", 2000),
   ("electronics",5000),
   ("food", 500);
+  
+SELECT * FROM departments;

@@ -19,7 +19,7 @@ function bamazonSupervisor() {
 
     function viewSales() {
         console.log("\033c");
-
+        mainMenu();
 
     } //function viewSales
 
@@ -47,7 +47,7 @@ function bamazonSupervisor() {
                 function (err, res) {
                     // if department name exists, send user back to supervisor menu
                     if (res.length) {
-                        console.log("\n" + input.dept + "Exist. Please create a new one.");
+                        console.log("\n" + input.dept + " Exist. Please create a new one.");
                         mainMenu();
                         return
                     } else {
