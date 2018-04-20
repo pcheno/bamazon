@@ -1,82 +1,120 @@
-require("dotenv").config();
-var mysql = require("mysql");
-var inquirer = require("inquirer");
+function bamazonCustomer() {
 
-var connection = mysql.createConnection({
-    host: "localhost",
-    port: 3306,
+    require("dotenv").config();
+    var mysql = require("mysql");
+    var inquirer = require("inquirer");
+    var t = require("console.table");
+    var menu = require("./index.js");
 
-    // Your username
-    user: "root",
+    var connection = mysql.createConnection({
+        host: "localhost",
+        port: 3306,
 
-    // Your password
-    password: process.env.MYSQLPASSWORD,
-    database: "bamazon"
-});
+        // Your username
+        user: "root",
+
+        // Your password
+        password: process.env.MYSQLPASSWORD,
+        database: "bamazon"
+    });
 
 
-function allProduct() {
-    connection.query("SELECT * FROM products", function (err, res) {
-        for (var i = 0; i < res.length; i++) {
-            console.log("\n" + "+".repeat(50) + "\n" + res[i].product_name + "\nItem Id: " + res[i].item_id + "\nDepartment: " + res[i].department_name + "\nPrice: " + "$" + res[i].price + "\nQuantity: " + res[i].stock_quantity);
-        }
-        buyItem();
+    function allProduct() {
+        console.log("\033c");
+        connection.query("SELECT * FROM products", function (err, res) {
+            console.table(res);
+            buyItem();
+        });
+    }
+    // function buyItem called from function allProduct
+    function buyItem() {
+        inquirer.prompt([{
+                name: "buyId",
+                message: "Enter the Id of the Item you would like to purchase ",
+                validate: answer => {
+                    if (answer.match(/^[1-9]\d*$/)) {
+                        return true;
+                    } else {
+                        return "Please enter a positive integer.";
+                    }
+                }
+            },
+            {
+                name: "amount",
+                type: "input",
+                message: "How many? ",
+                validate: answer => {
+                    if (answer.match(/^[1-9]\d*$/)) {
+                        return true;
+                    } else {
+                        return "Please enter a positive integer.";
+                    }
+                }
+            }
+        ]).then(function (userIn) {
+            var query = connection.query("SELECT * FROM products WHERE item_id=?", userIn.buyId, function (err, res) {
+                if (res[0] == undefined) {
+                    console.log("\n" + userIn.buyId + "  Item id not found\n");
+                } else {
+                    if (userIn.amount > res[0].stock_quantity) {
+                        console.log("\nInsufficient quantity! Only " + res[0].stock_quantity + " available.\n");
+                    } else {
+                        var query = connection.query("UPDATE products SET ? WHERE ?", [{
+                                stock_quantity: res[0].stock_quantity - userIn.amount
+                            },
+                            {
+                                item_id: userIn.buyId
+                            }
+
+                        ]);
+                        console.log("\nThe total cost is $" + (userIn.amount * res[0].price).toFixed(2) +
+                            "\n" + res[0].product_name + " past quantity " + res[0].stock_quantity +
+                            ", now has a quantity of " + (res[0].stock_quantity - userIn.amount));
+                    }
+                }
+                mainMenu();
+            }); //query
+        }); //.then
+    } //function buyItem
+
+    function mainMenu() {
+        inquirer.prompt([{
+            name: "action",
+            type: "list",
+            message: "Choose Action?",
+            choices: [
+                "View and Purchase Products",
+                "Back to Main Menu",
+                "Exit Menu"
+            ]
+        }]).then(function (answer) {
+            switch (answer.action) {
+                case "View and Purchase Products":
+                    allProduct();
+                    break;
+                case "Back to Main Menu":
+                    connection.end();
+                    menu.bamazonMenu();
+                    break;
+                case "Exit Menu":
+                    console.log("\033c");
+                    console.log("\ngood bye")
+                    connection.end();
+                    break;
+                default:
+                    console.log("\033c");
+                    console.log("\nEnter valid input\n")
+                    mainMenu();
+            } //switch
+        }); //.then
+    } //function mainMenu
+
+
+    //////////////start here///////////////
+    connection.connect(function (err) {
+        if (err) throw err;
+        console.log("\033c");
+        mainMenu();
     });
 }
-// function buyItem called from function allProduct
-function buyItem() {
-    inquirer.prompt([{
-            name: "buyId",
-            message: "Enter the Id of the Item you would like to purchase ",
-            validate: answer => {
-                if (answer.match(/^[1-9]\d*$/)) {
-                    return true;
-                } else {
-                    return "Please enter a positive integer.";
-                }
-            }
-        },
-        {
-            name: "amount",
-            type: "input",
-            message: "How many? ",
-            validate: answer => {
-                if (answer.match(/^[1-9]\d*$/)) {
-                    return true;
-                } else {
-                    return "Please enter a positive integer.";
-                }
-            }
-        }
-    ]).then(function (userIn) {
-        var query = connection.query("SELECT * FROM products WHERE item_id=?", userIn.buyId, function (err, res) {
-            if (res[0] == undefined) {
-                console.log("\n" + userIn.buyId + "  Item id not found\n");
-            } else {
-                if (userIn.amount > res[0].stock_quantity) {
-                    console.log("Insufficient quantity!");
-                } else {
-                    var query = connection.query("UPDATE products SET ? WHERE ?", [{
-                            stock_quantity: res[0].stock_quantity - userIn.amount
-                        },
-                        {
-                            item_id: userIn.buyId
-                        }
-                        
-                    ]);
-                    console.log("\nThe total cost is $" + (userIn.amount * res[0].price).toFixed(2)+
-                                "\n" + res[0].product_name + " past quantity " + res[0].stock_quantity+
-                                 ", now has a quantity of " + (res[0].stock_quantity - userIn.amount));
-                }
-            }
-            connection.end();
-        }); //query
-    }); //.then
-} //function buyItem
-
-//////////////start here///////////////
-connection.connect(function (err) {
-    if (err) throw err;
-    console.log("connected as id " + connection.threadId);
-    allProduct();
-});
+module.exports.bamazonCustomer = bamazonCustomer;
