@@ -18,11 +18,57 @@ function bamazonSupervisor() {
     });
 
     function viewSales() {
+        console.log("\033c");
+
 
     } //function viewSales
 
     function addDepartment() {
+        console.log("\033c");
+        inquirer.prompt([{
+                name: "dept",
+                message: "Please enter the new department's name"
+            },
+            {
+                name: "overhead",
+                message: "Please enter a valid cost with no dollar sign",
+                validate: function (value) {
+                    var match = value.match(/^[+-]?[1-9][0-9]{0,2}(?:(,[0-9]{3})*|([0-9]{3})*)(?:\.[0-9]{2})?$/);
+                    if (match) {
+                        return true;
+                    }
+                    return 'Please enter a valid cost with no dollar sign';
+                }
+            }
+        ]).then(function (input) {
+            // query database to see if user input for department already exists 
+            connection.query(
+                "SELECT * FROM departments WHERE department_name=?", input.dept,
+                function (err, res) {
+                    // if department name exists, send user back to supervisor menu
+                    if (res.length) {
+                        console.log("\n" + input.dept + "Exist. Please create a new one.");
+                        mainMenu();
+                        return
+                    } else {
+                        //  add department
+                        console.log("\nAdding a new department...");
 
+                        var query = connection.query(
+                            "INSERT INTO departments SET ?", {
+                                department_name: input.dept,
+                                over_head_costs: input.overhead
+                            },
+                            function (err, res) {
+                                console.log("\n" + input.dept + " Department added\n");
+                                mainMenu();
+
+                            }
+                        ); //query INSERT
+                    } //else
+                } //function
+            ); //query SELECT
+        }); //.then
     } //function addDepartment
 
     function mainMenu() {
