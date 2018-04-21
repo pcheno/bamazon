@@ -19,8 +19,22 @@ function bamazonSupervisor() {
 
     function viewSales() {
         console.log("\033c");
-        mainMenu();
 
+        let query = `
+        SELECT 
+          d.department_id, 
+          d.department_name, 
+          d.over_head_costs, 
+          SUM(p.product_sales) AS totalSales 
+        FROM departments d
+        INNER JOIN products p 
+          ON d.department_name = p.department_name
+        GROUP BY d.department_name
+        ORDER BY d.department_id`
+        connection.query(query, function (err, res) {
+            console.table(res);
+            mainMenu();
+        }); //query
     } //function viewSales
 
     function addDepartment() {
@@ -31,13 +45,12 @@ function bamazonSupervisor() {
             },
             {
                 name: "overhead",
-                message: "Please enter a valid cost with no dollar sign",
+                message: "Please enter a valid overhead cost with no dollar sign",
                 validate: function (value) {
-                    var match = value.match(/^[+-]?[1-9][0-9]{0,2}(?:(,[0-9]{3})*|([0-9]{3})*)(?:\.[0-9]{2})?$/);
-                    if (match) {
+                    if (value.match(/^[+-]?[1-9][0-9]{0,2}(?:(,[0-9]{3})*|([0-9]{3})*)(?:\.[0-9]{2})?$/)) {
                         return true;
                     }
-                    return 'Please enter a valid cost with no dollar sign';
+                    return 'Please enter an overhead cost with no dollar sign';
                 }
             }
         ]).then(function (input) {
